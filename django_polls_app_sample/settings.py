@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,13 +123,16 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 
-
 ########################################################################
 #             LOGGING CONFIGURATION
 ########################################################################
 LOG_DIR = BASE_DIR + "/logs"
-SLACK_API_KEY = os.getenv('SLACK_API_KEY', 'None')
-SLACK_USERNAME = os.getenv('SLACK_USERNAME', "django-nginx-gunicorn-postgres")
+# SLACK_API_KEY = os.getenv('SLACK_API_KEY', 'None')
+# SLACK_USERNAME = os.getenv('SLACK_USERNAME', "django-nginx-gunicorn-postgres")
+SLACK_API_KEY = json.load(
+    open('/home/xuananh/Dropbox/Work/Other/slack-token-api-key.json',
+         'r'))['phungxuananh']
+SLACK_USERNAME = 'django-dev'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -192,5 +196,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'slack.logger': {
+            'handlers': ['console', 'slack.ERROR.SlackerLogHandler'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }
