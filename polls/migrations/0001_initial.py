@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.contrib.auth.models import User
 
 
 def create_supersuser(apps, schema_editor):
