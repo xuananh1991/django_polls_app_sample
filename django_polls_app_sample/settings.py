@@ -120,3 +120,77 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+
+
+########################################################################
+#             LOGGING CONFIGURATION
+########################################################################
+LOG_DIR = BASE_DIR + "/logs"
+SLACK_API_KEY = os.getenv('SLACK_API_KEY', 'None')
+SLACK_USERNAME = os.getenv('SLACK_USERNAME', "django-nginx-gunicorn-postgres")
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': "[%(asctime)s] [%(module)s.%(funcName)s:%(lineno)d] %(levelname)s: %(message)s",
+            'datefmt': "%H:%M:%S",
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        # 'fileHandler': {
+        #     'level': 'INFO',
+        #     'class': 'logging.FileHandler',
+        #     'filename': '/usr/src/app/logs/dashboard.log',
+        #     'formatter': 'verbose'
+        # },
+        'app.ERROR.RotatingFileHandler': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + '/app.ERROR.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 3,
+            'formatter': 'verbose'
+        },
+        'app.INFO.RotatingFileHandler': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + '/app.INFO.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 3,
+            'formatter': 'verbose'
+        },
+        'app.DEBUG.RotatingFileHandler': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + '/app.DEBUG.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 3,
+            'formatter': 'verbose'
+        },
+        'slack.ERROR.SlackerLogHandler': {
+            'level': 'ERROR',
+            'icon_emoji': ':beetle:',
+            'username': SLACK_USERNAME,
+            'api_key': SLACK_API_KEY,
+            'class': 'slacker_log_handler.SlackerLogHandler',
+            'channel': '#django-app'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'app.DEBUG.RotatingFileHandler', 'app.INFO.RotatingFileHandler', 'app.ERROR.RotatingFileHandler'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
